@@ -27,6 +27,8 @@ dependencies {
     runtimeOnly(libs.logback.classic)
 
     testImplementation(libs.kotlin.test)
+    testImplementation(libs.kotest.runner.junit5)
+    testImplementation(libs.kotest.assertions.core)
     testImplementation(libs.junit.jupiter.engine)
     testRuntimeOnly(libs.junit.platform.launcher)
 }
