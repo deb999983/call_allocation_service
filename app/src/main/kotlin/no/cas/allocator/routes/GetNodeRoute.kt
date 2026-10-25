@@ -19,7 +19,7 @@ class GetNodeRoute(private val nodeService: NodeService) : HttpHandler {
     override fun invoke(request: Request): Response {
         val node = nodeService.getNode(idLens(request), regionLens(request))
         return Response(Status.OK).with(
-            responseLens of GetNodeResponse(node.id, node.region, node.capacity, node.runningCallCount)
+            responseLens of GetNodeResponse(node.id, node.region, node.capacity, node.currentCalls)
         )
     }
 }

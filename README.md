@@ -1,6 +1,6 @@
 # Call Allocation Service
 
-An HTTP service that registers call nodes per region and places calls on the least-loaded node with free capacity. Built with Kotlin and http4k. Node and call state is held in memory, so it is lost on restart.
+An HTTP service that registers call nodes per region and places calls on the least-loaded node with free capacity. Load is the call count each node reports, plus calls placed and minus calls ended since that report. Built with Kotlin and http4k. Node and call state is held in memory, so it is lost on restart.
 
 ## Prerequisites
 
@@ -69,8 +69,8 @@ BASE_URL=http://localhost:18080 scripts/seed-and-report.sh  # against another ad
 | Method | Path | Body | Purpose |
 |--------|------|------|---------|
 | `GET` | `/health` | | Liveness check |
-| `PUT` | `/nodes` | `{"id", "region", "capacity"}` | Register a node or update its capacity |
-| `GET` | `/nodes/{region}/{id}` | | Node capacity and current call count |
+| `PUT` | `/nodes` | `{"id", "region", "capacity", "currentCalls"}` | Register a node or report its capacity and current calls |
+| `GET` | `/nodes/{region}/{id}` | | Node capacity and `currentCalls` (reported plus changes since the report) |
 | `POST` | `/calls` | `{"callId", "region"}` | Allocate a call to a node in the region |
 | `GET` | `/calls/{id}` | | Call status and node |
 | `DELETE` | `/calls/{id}` | | Finish a running call |

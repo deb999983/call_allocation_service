@@ -5,10 +5,10 @@ import no.cas.allocator.domain.CallNode
 import no.cas.allocator.exceptions.NodeDoesNotExistException
 
 class NodeService(private val nodeStore: NodeStore) {
-    fun registerNode(nodeId: String, region: String, capacity: Int): CallNode {
+    fun registerNode(nodeId: String, region: String, capacity: Int, currentCalls: Int): CallNode {
         return nodeStore.withLock {
             val node = nodeStore.getNode(nodeId, region) ?: CallNode(nodeId, region, capacity)
-            node.updateCapacity(capacity)
+            node.newReport(capacity, currentCalls)
             nodeStore.saveNode(node)
         }
     }

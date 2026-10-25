@@ -11,6 +11,7 @@ RUN="$(date +%s)-$$"
 REGION="smoke-$RUN"
 NODE_A="node-a-$RUN"
 NODE_B="node-b-$RUN"
+NODE_C="node-c-$RUN"
 
 for tool in curl jq; do
     command -v "$tool" >/dev/null || { echo "missing dependency: $tool" >&2; exit 2; }
@@ -47,7 +48,8 @@ check() {
 
 json() { jq -r "$1" <<<"$BODY" 2>/dev/null; }
 
-register_node() { req PUT /nodes "{\"id\":\"$1\",\"region\":\"$REGION\",\"capacity\":$2}"; }
+# register_node ID CAPACITY [CURRENT_CALLS]
+register_node() { req PUT /nodes "{\"id\":\"$1\",\"region\":\"$REGION\",\"capacity\":$2,\"currentCalls\":${3:-0}}"; }
 allocate() { req POST /calls "{\"callId\":\"$1\",\"region\":\"${2:-$REGION}\"}"; }
 
 echo "Smoke testing $BASE_URL (region $REGION)"
@@ -66,13 +68,19 @@ check "register $NODE_A" 200 "$STATUS"
 check "$NODE_A capacity" 2 "$(json .capacity)"
 register_node "$NODE_B" 1
 check "register $NODE_B" 200 "$STATUS"
+# Reports itself full, so it must never be picked.
+register_node "$NODE_C" 3 3
+check "register $NODE_C" 200 "$STATUS"
+check "$NODE_C reported current calls" 3 "$(json .currentCalls)"
 req GET "/nodes/$REGION/$NODE_A"
 check "GET node" 200 "$STATUS"
-check "GET node current" 0 "$(json .current)"
+check "GET node currentCalls" 0 "$(json .currentCalls)"
 req GET "/nodes/$REGION/missing-$RUN"
 check "GET unknown node" 404 "$STATUS"
-req PUT /nodes "{\"id\":\"bad-$RUN\",\"region\":\"$REGION\",\"capacity\":-1}"
+req PUT /nodes "{\"id\":\"bad-$RUN\",\"region\":\"$REGION\",\"capacity\":-1,\"currentCalls\":0}"
 check "register negative capacity" 400 "$STATUS"
+register_node "bad-$RUN" 1 -1
+check "register negative currentCalls" 400 "$STATUS"
 
 echo "Calls"
 for i in 1 2 3; do
@@ -118,9 +126,9 @@ check "allocate malformed body" 400 "$STATUS"
 echo
 echo "Report"
 printf '  %-28s %8s %8s\n' NODE CURRENT CAPACITY
-for node in "$NODE_A" "$NODE_B"; do
+for node in "$NODE_A" "$NODE_B" "$NODE_C"; do
     req GET "/nodes/$REGION/$node"
-    printf '  %-28s %8s %8s\n' "$node" "$(json .current)" "$(json .capacity)"
+    printf '  %-28s %8s %8s\n' "$node" "$(json .currentCalls)" "$(json .capacity)"
 done
 printf '  %-28s %8s\n' CALL STATUS
 for i in 1 2 3 4; do

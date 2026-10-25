@@ -22,7 +22,7 @@ class NodeStoreTest : DescribeSpec({
 
             stored.shouldNotBeNull()
             stored.capacity shouldBe 3
-            stored.runningCallCount shouldBe 1
+            stored.currentCalls shouldBe 1
             stored.getCall(callId)?.nodeId shouldBe nodeId
         }
 
@@ -107,7 +107,7 @@ class NodeStoreTest : DescribeSpec({
             val nodeId = uniqueId()
             val node = NodeStore.saveNode(CallNode(nodeId, "eu-north", 3).apply { addCall(uniqueId()) })
 
-            NodeStore.saveNode(node.updateCapacity(5))
+            NodeStore.saveNode(node.newReport(5, node.currentCalls))
 
             NodeStore.getNode(nodeId, "eu-north")?.capacity shouldBe 5
         }

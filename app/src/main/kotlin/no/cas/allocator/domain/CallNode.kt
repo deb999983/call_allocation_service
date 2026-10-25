@@ -12,14 +12,19 @@ data class CallNode(
     private val stoppedCalls = mutableListOf<Call>()
     private val allCalls : List<Call> get() = runningCalls + stoppedCalls
 
+    var reportedCalls: Int = 0
+        private set
+    var callsSinceReport: Int = 0
+        private set
+
     val calls: List<Call> get() = allCalls
 
-    val runningCallCount: Int get() = runningCalls.size
+    val currentCalls: Int get() = reportedCalls + callsSinceReport
 
-    fun loadFactor(): Double = runningCalls.size.toDouble() / capacity
+    fun loadFactor(): Double = currentCalls.toDouble() / capacity
 
     fun canAllocateNewCalls(): Boolean {
-        return runningCalls.size < capacity
+        return currentCalls < capacity
     }
 
     fun getCall(id: String): Call? {
@@ -29,10 +34,13 @@ data class CallNode(
     fun addCall(callId: String) {
         val call = Call(callId, region, id, CallStatus.RUNNING)
         runningCalls.add(call)
+        callsSinceReport++
     }
 
-    fun updateCapacity(newCapacity: Int): CallNode {
+    fun newReport(newCapacity: Int, newCurrentCalls: Int): CallNode {
         capacity = newCapacity
+        reportedCalls = newCurrentCalls
+        callsSinceReport = 0
         return this
     }
 
@@ -47,6 +55,8 @@ data class CallNode(
 
         runningCalls.remove(call)
         stoppedCalls.add(call.copy(status = CallStatus.FINISHED))
+
+        if (currentCalls > 0) callsSinceReport--
     }
 
     fun dropCall(callId: String) {
@@ -56,11 +66,20 @@ data class CallNode(
 
 
     companion object {
-        fun restore(id: String, region: String, capacity: Int, calls: List<Call>): CallNode {
+        fun restore(
+            id: String,
+            region: String,
+            capacity: Int,
+            calls: List<Call>,
+            reportedCalls: Int = 0,
+            callsSinceReport: Int = 0
+        ): CallNode {
             val node = CallNode(id, region, capacity)
             calls.forEach {
                 if (it.status == CallStatus.RUNNING) node.runningCalls.add(it) else node.stoppedCalls.add(it)
             }
+            node.reportedCalls = reportedCalls
+            node.callsSinceReport = callsSinceReport
             return node
         }
     }

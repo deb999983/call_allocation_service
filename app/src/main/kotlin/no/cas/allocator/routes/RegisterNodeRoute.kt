@@ -20,9 +20,9 @@ class RegisterNodeRoute(val nodeService: NodeService) : HttpHandler {
     override fun invoke(request: Request): Response {
         val request = requestLens(request)
 
-        val node = nodeService.registerNode(request.id, request.region, request.capacity)
+        val node = nodeService.registerNode(request.id, request.region, request.capacity, request.currentCalls)
         return Response(Status.OK).with(
-            responseLens of RegisterNodeResponse(node.id, node.region, node.capacity, node.runningCallCount)
+            responseLens of RegisterNodeResponse(node.id, node.region, node.capacity, node.currentCalls)
         )
     }
 }

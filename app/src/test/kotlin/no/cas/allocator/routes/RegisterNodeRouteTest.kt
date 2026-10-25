@@ -2,6 +2,7 @@ package no.cas.allocator.routes
 
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
+import no.cas.allocator.app
 import no.cas.allocator.db.NodeStore
 import no.cas.allocator.dto.RegisterNodeRequest
 import no.cas.allocator.dto.RegisterNodeResponse
@@ -16,11 +17,12 @@ import java.util.UUID
 
 class RegisterNodeRouteTest : DescribeSpec({
     val route = RegisterNodeRoute(NodeService(NodeStore))
+    val app = app()
     val requestLens = Body.auto<RegisterNodeRequest>().toLens()
     val responseLens = Body.auto<RegisterNodeResponse>().toLens()
 
-    fun register(nodeId: String, capacity: Int) =
-        route(Request(Method.PUT, "/nodes").with(requestLens of RegisterNodeRequest(nodeId, "eu-north", capacity)))
+    fun register(nodeId: String, capacity: Int, currentCalls: Int = 0) =
+        route(Request(Method.PUT, "/nodes").with(requestLens of RegisterNodeRequest(nodeId, "eu-north", capacity, currentCalls)))
 
     describe("PUT /nodes") {
         // NodeStore is a shared singleton, so each test uses its own node id.
@@ -41,6 +43,31 @@ class RegisterNodeRouteTest : DescribeSpec({
 
             response.status shouldBe Status.OK
             responseLens(response).capacity shouldBe 10
+        }
+
+        it("returns the reported current calls") {
+            val nodeId = UUID.randomUUID().toString()
+
+            val response = register(nodeId, capacity = 100, currentCalls = 20)
+
+            responseLens(response) shouldBe RegisterNodeResponse(nodeId, "eu-north", 100, 20)
+        }
+
+        it("returns 400 for negative current calls") {
+            val response = app(
+                Request(Method.PUT, "/nodes")
+                    .body("""{"id": "n", "region": "eu-north", "capacity": 5, "currentCalls": -1}""")
+            )
+
+            response.status shouldBe Status.BAD_REQUEST
+        }
+
+        it("returns 400 when current calls are missing") {
+            val response = app(
+                Request(Method.PUT, "/nodes").body("""{"id": "n", "region": "eu-north", "capacity": 5}""")
+            )
+
+            response.status shouldBe Status.BAD_REQUEST
         }
     }
 })
