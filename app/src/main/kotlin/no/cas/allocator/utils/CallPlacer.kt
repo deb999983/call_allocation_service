@@ -6,6 +6,7 @@ import no.cas.allocator.domain.CallNode
 import no.cas.allocator.domain.CallStatus
 import no.cas.allocator.exceptions.AllNodesFullException
 import no.cas.allocator.exceptions.CallAlreadyFinishedException
+import no.cas.allocator.exceptions.CallIdConflictException
 import no.cas.allocator.exceptions.NodeDoesNotExistInRegionException
 
 class CallPlacer(private val nodeStore: NodeStore) {
@@ -16,7 +17,7 @@ class CallPlacer(private val nodeStore: NodeStore) {
             throw NodeDoesNotExistInRegionException(call.region)
         }
 
-        val allocatedNode = allocateIfRunningCall(call.id)
+        val allocatedNode = allocateIfRunningCall(call)
         if (allocatedNode != null) {
             return@withLock allocatedNode
         }
@@ -36,12 +37,14 @@ class CallPlacer(private val nodeStore: NodeStore) {
         return allocatableNodes.minBy { it.loadFactor() }
     }
 
-    private fun allocateIfRunningCall(callId: String): CallNode? {
-        val allocatedNode = nodeStore.findNodeWithCall(callId) ?: return null // Is new
-        val call = allocatedNode.getCall(callId)!!
+    private fun allocateIfRunningCall(call: Call): CallNode? {
+        val allocatedNode = nodeStore.findNodeWithCall(call.id) ?: return null // Is new
+        if (allocatedNode.region != call.region) {
+            throw CallIdConflictException(call.id)
+        }
 
-        if (call.status == CallStatus.FINISHED) {
-            throw CallAlreadyFinishedException(callId)
+        if (allocatedNode.getCall(call.id)!!.status == CallStatus.FINISHED) {
+            throw CallAlreadyFinishedException(call.id)
         }
         return allocatedNode
     }

@@ -10,6 +10,7 @@ class ValidationException(message: String) : RuntimeException(message)
 
 class CallAlreadyFinishedException(callId: String) : RuntimeException("Call $callId has already finished")
 class CallNotFoundException(callId: String) : RuntimeException("Call $callId not found")
+class CallIdConflictException(callId: String) : RuntimeException("Call $callId is already allocated to another node")
 class CallNodeIdMismatchException(call: Call, otherNodeId: String) : RuntimeException("Call $call does not match node $otherNodeId")
 class CallHasInvalidStatusException(call: Call, status: CallStatus, expectedStatus: CallStatus) : RuntimeException("Call $call status is invalid: $status, expectedStatus: $expectedStatus")
 class CallNotAllocatedToAnyNode(callId: String) : RuntimeException("Call $callId is not running or queued")

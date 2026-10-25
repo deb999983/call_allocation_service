@@ -76,6 +76,17 @@ class CallRoutesTest : DescribeSpec({
 
             response.status shouldBe Status.BAD_REQUEST
         }
+
+        it("returns 409 when the call id is already allocated in another region") {
+            val region = uniqueId()
+            val otherRegion = uniqueId()
+            val callId = uniqueId()
+            register(uniqueId(), region, capacity = 1)
+            register(uniqueId(), otherRegion, capacity = 1)
+            allocate(callId, region)
+
+            allocate(callId, otherRegion).status shouldBe Status.CONFLICT
+        }
     }
 
     describe("GET /calls/{id}") {

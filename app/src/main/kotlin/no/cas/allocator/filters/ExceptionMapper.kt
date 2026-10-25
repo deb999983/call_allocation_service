@@ -3,6 +3,7 @@ package no.cas.allocator.filters
 import no.cas.allocator.dto.ErrorResponse
 import no.cas.allocator.exceptions.AllNodesFullException
 import no.cas.allocator.exceptions.CallAlreadyFinishedException
+import no.cas.allocator.exceptions.CallIdConflictException
 import no.cas.allocator.exceptions.CallNotAllocatedToAnyNode
 import no.cas.allocator.exceptions.CallNotFoundException
 import no.cas.allocator.exceptions.NodeDoesNotExistException
@@ -39,6 +40,7 @@ private fun statusFor(e: Exception): Status? = when (e) {
     is CallNotFoundException -> NOT_FOUND
     is CallNotAllocatedToAnyNode -> NOT_FOUND
     is CallAlreadyFinishedException -> CONFLICT
+    is CallIdConflictException -> CONFLICT
     is AllNodesFullException -> SERVICE_UNAVAILABLE
     else -> null
 }

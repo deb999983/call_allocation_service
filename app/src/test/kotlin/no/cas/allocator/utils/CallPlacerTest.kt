@@ -8,6 +8,7 @@ import no.cas.allocator.domain.Call
 import no.cas.allocator.domain.CallNode
 import no.cas.allocator.domain.CallStatus
 import no.cas.allocator.exceptions.CallAlreadyFinishedException
+import no.cas.allocator.exceptions.CallIdConflictException
 import java.util.UUID
 
 class CallPlacerTest : DescribeSpec({
@@ -29,6 +30,19 @@ class CallPlacerTest : DescribeSpec({
             }
 
             exception.message shouldBe "Call $callId has already finished"
+        }
+
+        it("throws CallIdConflictException when allocating a call again in another region") {
+            val region = uniqueId()
+            val otherRegion = uniqueId()
+            val callId = uniqueId()
+            NodeStore.saveNode(CallNode(uniqueId(), region, capacity = 1))
+            NodeStore.saveNode(CallNode(uniqueId(), otherRegion, capacity = 1))
+            placer.place(Call(callId, region))
+
+            shouldThrow<CallIdConflictException> {
+                placer.place(Call(callId, otherRegion))
+            }
         }
     }
 })
