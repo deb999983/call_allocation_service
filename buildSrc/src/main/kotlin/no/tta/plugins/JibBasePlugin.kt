@@ -10,6 +10,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.ApplicationPlugin
 import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.register
 
 
@@ -37,14 +38,16 @@ abstract class JibBasePlugin: Plugin<Project> {
         // register dockerBuild task
         project.tasks.register<JibDockerBuildTask>("dockerBuild") {
             group = "docker"
+            imageRef.set(project.provider {
+                val to = project.extensions.getByType<JibExtension>().to
+                "${to.image}:${to.tags.first()}"
+            })
         }
     }
 
     abstract fun configureJib(project: Project)
 
     open fun configureJibDefaults(project: Project) {
-        val dockerTags = setOf("v1.0.0")
-
         project.configure<JibExtension> {
             from {
                 platforms {
@@ -54,8 +57,10 @@ abstract class JibBasePlugin: Plugin<Project> {
                     }
                 }
             }
+            // Only fill in what the build script left unset, so `jib { to { image = ... } }` wins
             to {
-                tags = dockerTags
+                if (image.isNullOrEmpty()) image = project.name
+                if (tags.isNullOrEmpty()) tags = setOf("v1.0.0")
             }
         }
     }

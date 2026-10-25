@@ -4,6 +4,8 @@ import com.google.cloud.tools.jib.gradle.BuildTarTask
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
@@ -21,12 +23,13 @@ abstract class JibDockerBuildTask @Inject constructor(
     @get:OutputFile
     val loadedImageIdFile: RegularFileProperty = project.objects.fileProperty().convention(project.layout.buildDirectory.file("docker/${project.name}-image.id"))
 
-    private val imageRef = "${project.name}:v1.0.0"
+    @get:Input
+    abstract val imageRef: Property<String>
 
     init {
         outputs.upToDateWhen {
             val recordedId = loadedImageIdFile.get().asFile.takeIf { it.exists() }?.readText()?.trim()
-            !recordedId.isNullOrEmpty() && recordedId == daemonImageId(imageRef)
+            !recordedId.isNullOrEmpty() && recordedId == daemonImageId(imageRef.get())
         }
     }
 
@@ -36,7 +39,8 @@ abstract class JibDockerBuildTask @Inject constructor(
             commandLine("docker", "load", "--input", tarImagePath.singleFile.absolutePath)
         }
 
-        val loadedId = daemonImageId(imageRef) ?: error("Image $imageRef not found in the docker daemon after load")
+        val ref = imageRef.get()
+        val loadedId = daemonImageId(ref) ?: error("Image $ref not found in the docker daemon after load")
         loadedImageIdFile.get().asFile.apply {
             parentFile.mkdirs()
             writeText(loadedId)

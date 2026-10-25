@@ -46,6 +46,9 @@ application {
 }
 
 jib {
+    to {
+        image = "call-allocation-service"
+    }
     container {
         ports = listOf("8080")
     }
