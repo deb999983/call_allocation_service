@@ -48,6 +48,6 @@ port-forward: ## Expose the allocator on localhost:8080
 seed: ## Run the seed script against localhost:8080 (needs port-forward running)
 	$(ROOT)/scripts/seed-and-report.sh
 
-up: cluster-up load deploy ## Create cluster, build and load image, deploy
+up: cluster-up load deploy restart ## Create cluster, build and load image, deploy and roll pods
 
 down: cluster-down ## Tear everything down
