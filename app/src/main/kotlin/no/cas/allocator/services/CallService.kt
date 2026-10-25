@@ -2,17 +2,19 @@ package no.cas.allocator.services
 
 import no.cas.allocator.db.NodeStore
 import no.cas.allocator.domain.Call
+import no.cas.allocator.domain.CallNode
 import no.cas.allocator.domain.CallStatus
 import no.cas.allocator.exceptions.CallAlreadyFinishedException
-import no.cas.allocator.exceptions.CallNotAllocatedToAnyNode
+import no.cas.allocator.exceptions.CallNotAllocatedToAnyNodeException
 import no.cas.allocator.exceptions.CallNotFoundException
 import no.cas.allocator.utils.CallPlacer
 
 class CallService(private val nodeStore: NodeStore) {
     private val placer = CallPlacer(nodeStore)
 
-    fun allocateCall(callId: String, region: String): Call = nodeStore.withLock {
-        placer.place(Call(callId, region)).getCall(callId)!!
+    // Returns the node the call runs on.
+    fun allocateCall(callId: String, region: String): CallNode = nodeStore.withLock {
+        placer.place(Call(callId, region))
     }
 
 
@@ -22,7 +24,7 @@ class CallService(private val nodeStore: NodeStore) {
     }
 
     fun dropCall(callId: String): Unit = nodeStore.withLock {
-        val node = nodeStore.findNodeWithCall(callId) ?: throw CallNotAllocatedToAnyNode(callId)
+        val node = nodeStore.findNodeWithCall(callId) ?: throw CallNotAllocatedToAnyNodeException(callId)
         rejectIfFinished(callId)
         node.dropCall(callId)
         nodeStore.saveNode(node)

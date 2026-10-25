@@ -9,7 +9,6 @@ kotest = "6.2.6"
 kotlin = "2.4.21"
 kotlin-logging = "8.0.4"
 logback = "1.6.5"
-mockk = "1.14.11"
 
 [libraries]
 hoplite-core = { module = "com.sksamuel.hoplite:hoplite-core", version.ref = "hoplite" }
@@ -25,4 +24,3 @@ kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5", version.ref 
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-logging = { module = "io.github.oshai:kotlin-logging-jvm", version.ref = "kotlin-logging" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
-mockk = { module = "io.mockk:mockk", version.ref = "mockk" }

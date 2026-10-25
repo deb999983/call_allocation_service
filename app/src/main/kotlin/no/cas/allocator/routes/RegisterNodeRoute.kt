@@ -1,7 +1,5 @@
 package no.cas.allocator.routes
 
-import no.cas.allocator.db.NodeStore
-import no.cas.allocator.domain.CallNode
 import no.cas.allocator.dto.RegisterNodeRequest
 import no.cas.allocator.dto.RegisterNodeResponse
 import no.cas.allocator.services.NodeService
@@ -13,7 +11,7 @@ import org.http4k.core.Status
 import org.http4k.core.with
 import org.http4k.format.KotlinxSerialization.auto
 
-class RegisterNodeRoute(val nodeService: NodeService) : HttpHandler {
+class RegisterNodeRoute(private val nodeService: NodeService) : HttpHandler {
     private val requestLens = Body.auto<RegisterNodeRequest>().toLens()
     private val responseLens = Body.auto<RegisterNodeResponse>().toLens()
 

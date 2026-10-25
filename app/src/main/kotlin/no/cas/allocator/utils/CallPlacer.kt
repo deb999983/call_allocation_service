@@ -43,7 +43,7 @@ class CallPlacer(private val nodeStore: NodeStore) {
             throw CallIdConflictException(call.id)
         }
 
-        if (allocatedNode.getCall(call.id)!!.status == CallStatus.FINISHED) {
+        if (allocatedNode.getCall(call.id)?.status == CallStatus.FINISHED) {
             throw CallAlreadyFinishedException(call.id)
         }
         return allocatedNode

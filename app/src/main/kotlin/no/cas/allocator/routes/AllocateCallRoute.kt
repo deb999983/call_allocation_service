@@ -18,9 +18,9 @@ class AllocateCallRoute(private val callService: CallService) : HttpHandler {
     override fun invoke(request: Request): Response {
         val request = requestLens(request)
 
-        val call = callService.allocateCall(request.callId, request.region)
+        val node = callService.allocateCall(request.callId, request.region)
         return Response(Status.OK).with(
-            responseLens of AllocateCallResponse(call.nodeId!!, call.region)
+            responseLens of AllocateCallResponse(node.id, node.region)
         )
     }
 }

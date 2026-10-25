@@ -13,4 +13,4 @@ class CallNotFoundException(callId: String) : RuntimeException("Call $callId not
 class CallIdConflictException(callId: String) : RuntimeException("Call $callId is already allocated to another node")
 class CallNodeIdMismatchException(call: Call, otherNodeId: String) : RuntimeException("Call $call does not match node $otherNodeId")
 class CallHasInvalidStatusException(call: Call, status: CallStatus, expectedStatus: CallStatus) : RuntimeException("Call $call status is invalid: $status, expectedStatus: $expectedStatus")
-class CallNotAllocatedToAnyNode(callId: String) : RuntimeException("Call $callId is not running or queued")
+class CallNotAllocatedToAnyNodeException(callId: String) : RuntimeException("Call $callId is not running or queued")
