@@ -4,7 +4,11 @@
 package no.cas.allocator
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import no.cas.allocator.db.NodeStore
+import no.cas.allocator.routes.GetNodeRoute
 import no.cas.allocator.routes.HealthRoute
+import no.cas.allocator.routes.RegisterNodeRoute
+import no.cas.allocator.services.NodeService
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method
 import org.http4k.core.then
@@ -18,8 +22,11 @@ import org.http4k.server.asServer
 private val logger = KotlinLogging.logger {}
 
 fun app(): HttpHandler {
+    val nodeService = NodeService(NodeStore)
     val routes = routes(
         "/health" bind Method.GET to HealthRoute(),
+        "/nodes" bind Method.PUT to RegisterNodeRoute(nodeService),
+        "/nodes/{region}/{id}" bind Method.GET to GetNodeRoute(nodeService),
     )
     return ServerFilters
         .CatchAll()
