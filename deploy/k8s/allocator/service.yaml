@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: allocator
+  labels:
+    app.kubernetes.io/name: allocator
+spec:
+  selector:
+    app.kubernetes.io/name: allocator
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
