@@ -6,9 +6,12 @@ package no.cas.allocator
 import io.github.oshai.kotlinlogging.KotlinLogging
 import no.cas.allocator.db.NodeStore
 import no.cas.allocator.filters.ExceptionMapper
+import no.cas.allocator.routes.AllocateCallRoute
+import no.cas.allocator.routes.GetCallRoute
 import no.cas.allocator.routes.GetNodeRoute
 import no.cas.allocator.routes.HealthRoute
 import no.cas.allocator.routes.RegisterNodeRoute
+import no.cas.allocator.services.CallService
 import no.cas.allocator.services.NodeService
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method
@@ -24,10 +27,13 @@ private val logger = KotlinLogging.logger {}
 
 fun app(): HttpHandler {
     val nodeService = NodeService(NodeStore)
+    val callService = CallService(NodeStore)
     val routes = routes(
         "/health" bind Method.GET to HealthRoute(),
         "/nodes" bind Method.PUT to RegisterNodeRoute(nodeService),
         "/nodes/{region}/{id}" bind Method.GET to GetNodeRoute(nodeService),
+        "/calls" bind Method.POST to AllocateCallRoute(callService),
+        "/calls/{id}" bind Method.GET to GetCallRoute(callService),
     )
     return ServerFilters
         .CatchAll()

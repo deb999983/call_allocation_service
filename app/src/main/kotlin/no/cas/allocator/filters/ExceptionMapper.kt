@@ -1,13 +1,19 @@
 package no.cas.allocator.filters
 
 import no.cas.allocator.dto.ErrorResponse
+import no.cas.allocator.exceptions.AllNodesFullException
+import no.cas.allocator.exceptions.CallAlreadyFinishedException
+import no.cas.allocator.exceptions.CallNotFoundException
 import no.cas.allocator.exceptions.NodeDoesNotExistException
+import no.cas.allocator.exceptions.NodeDoesNotExistInRegionException
 import no.cas.allocator.exceptions.ValidationException
 import org.http4k.core.Filter
 import org.http4k.core.Response
 import org.http4k.core.Status
 import org.http4k.core.Status.Companion.BAD_REQUEST
+import org.http4k.core.Status.Companion.CONFLICT
 import org.http4k.core.Status.Companion.NOT_FOUND
+import org.http4k.core.Status.Companion.SERVICE_UNAVAILABLE
 import org.http4k.core.with
 import org.http4k.lens.LensFailure
 
@@ -28,6 +34,10 @@ val ExceptionMapper = Filter { next ->
 private fun statusFor(e: Exception): Status? = when (e) {
     is ValidationException -> BAD_REQUEST
     is NodeDoesNotExistException -> NOT_FOUND
+    is NodeDoesNotExistInRegionException -> NOT_FOUND
+    is CallNotFoundException -> NOT_FOUND
+    is CallAlreadyFinishedException -> CONFLICT
+    is AllNodesFullException -> SERVICE_UNAVAILABLE
     else -> null
 }
 
