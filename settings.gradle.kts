@@ -1,4 +1,4 @@
-rootProject.name = "travel_time_analyser"
+rootProject.name = "call_allocation_service"
 
 pluginManagement {
     repositories {
