@@ -7,8 +7,11 @@ data class CallNodeEntity(
     val region: String,
     val capacity: Int,
     val calls: List<CallEntity>
-)
+) {
+    fun toDomain(): CallNode {
+        return CallNode.restore(id, region, capacity, calls.map { it.toDomain() })
+    }
+}
 
 fun CallNode.toEntity(): CallNodeEntity = CallNodeEntity(id, region, capacity, calls.map { it.toEntity() })
 
-fun CallNodeEntity.toDomain(): CallNode = CallNode.restore(id, region, capacity, calls.map { it.toDomain() })
