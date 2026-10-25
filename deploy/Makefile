@@ -19,7 +19,7 @@ cluster-down: ## Delete the kind cluster
 	kind delete cluster --name $(CLUSTER)
 
 build: ## Build the allocator image into the local docker daemon
-	cd $(ROOT) && ./gradlew :app:dockerBuild
+	docker build -t $(IMAGE) $(ROOT)
 
 load: build ## Load the image into the kind nodes
 	kind load docker-image $(IMAGE) --name $(CLUSTER)

@@ -1,0 +1,11 @@
+# Local build output and caches; the image builds from source.
+**/build
+.gradle
+**/.gradle
+.kotlin
+**/.kotlin
+.idea
+.DS_Store
+.git
+deploy
+scripts

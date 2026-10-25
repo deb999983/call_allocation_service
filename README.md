@@ -6,8 +6,8 @@ An HTTP service that registers call nodes per region and places calls on the lea
 
 | Tool | Needed for | Notes |
 |------|------------|-------|
-| JDK 21 | Building and running | The Gradle toolchain asks for Java 21 and does not download it, so it must be installed. |
-| Docker | Building the image | Must be running. |
+| JDK 21 | Building and running outside Docker | The Gradle toolchain asks for Java 21 and does not download it, so it must be installed. |
+| Docker | Building the image | Must be running. The image builds from source, so it needs no local JDK. |
 | [kind](https://kind.sigs.k8s.io/), kubectl, make | Running on a local Kubernetes cluster | |
 | curl, jq | The smoke test script | |
 
@@ -26,6 +26,17 @@ The port comes from `app/src/main/resources/application.yaml`. To use another on
 ./gradlew :app:installDist
 JAVA_OPTS="-Dconfig.override.server.port=18080" app/build/install/app/bin/app
 ```
+
+## Build the image with Docker
+
+The `Dockerfile` builds the service from source, so only Docker is needed:
+
+```sh
+docker build -t call-allocation-service .
+docker run --rm -p 8080:8080 call-allocation-service
+```
+
+The kind workflow below uses the same `Dockerfile`.
 
 ## Run it on a local kind cluster
 

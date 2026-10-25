@@ -6,7 +6,9 @@
  */
 
 plugins {
-    id("no.cas.gradle.plugins.jib-jvm")
+    kotlin("jvm")
+    kotlin("plugin.serialization")
+    application
 }
 
 repositories {
@@ -43,15 +45,6 @@ java {
 application {
     // Define the main class for the application.
     mainClass = "no.cas.allocator.AppKt"
-}
-
-jib {
-    to {
-        image = "call-allocation-service"
-    }
-    container {
-        ports = listOf("8080")
-    }
 }
 
 tasks.named<Test>("test") {
