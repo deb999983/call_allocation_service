@@ -65,9 +65,3 @@ BASE_URL=http://localhost:18080 scripts/seed-and-report.sh  # against another ad
 | `DELETE` | `/calls/{id}` | | Finish a running call |
 
 Errors come back as `{"message": "..."}`: 400 for invalid input, 404 for unknown nodes, calls or regions, 409 for finished or conflicting calls, and 503 when every node in the region is full.
-
-## Troubleshooting
-
-- **The pod fails with `exec format error`.** The image is built for `linux/arm64` only (set in `buildSrc/src/main/kotlin/no/tta/plugins/JibBasePlugin.kt`). On an x86 machine, change `architecture = "arm64"` to `"amd64"` there.
-- **`make port-forward` or `./gradlew :app:run` fails because port 8080 is in use.** Forward to another port with `kubectl --context kind-call-cluster -n call-allocation port-forward svc/allocator 18080:80`, or run the app on another port as shown above. Then point the smoke test at it with `BASE_URL`.
-- **Gradle says it cannot find a Java 21 toolchain.** Install JDK 21, or point Gradle at an existing install with `org.gradle.java.installations.paths` in `~/.gradle/gradle.properties`.
