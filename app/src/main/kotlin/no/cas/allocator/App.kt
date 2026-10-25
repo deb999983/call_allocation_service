@@ -5,6 +5,7 @@ package no.cas.allocator
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import no.cas.allocator.db.NodeStore
+import no.cas.allocator.filters.ExceptionMapper
 import no.cas.allocator.routes.GetNodeRoute
 import no.cas.allocator.routes.HealthRoute
 import no.cas.allocator.routes.RegisterNodeRoute
@@ -30,6 +31,7 @@ fun app(): HttpHandler {
     )
     return ServerFilters
         .CatchAll()
+        .then(ExceptionMapper)
         .then(routes)
 }
 
