@@ -7,6 +7,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import no.cas.allocator.db.NodeStore
 import no.cas.allocator.filters.ExceptionMapper
 import no.cas.allocator.routes.AllocateCallRoute
+import no.cas.allocator.routes.DropCallRoute
 import no.cas.allocator.routes.GetCallRoute
 import no.cas.allocator.routes.GetNodeRoute
 import no.cas.allocator.routes.HealthRoute
@@ -34,6 +35,7 @@ fun app(): HttpHandler {
         "/nodes/{region}/{id}" bind Method.GET to GetNodeRoute(nodeService),
         "/calls" bind Method.POST to AllocateCallRoute(callService),
         "/calls/{id}" bind Method.GET to GetCallRoute(callService),
+        "/calls/{id}" bind Method.DELETE to DropCallRoute(callService),
     )
     return ServerFilters
         .CatchAll()

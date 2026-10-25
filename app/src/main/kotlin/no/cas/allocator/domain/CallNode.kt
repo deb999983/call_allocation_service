@@ -1,5 +1,8 @@
 package no.cas.allocator.domain
 
+import no.cas.allocator.exceptions.CallHasInvalidStatusException
+import no.cas.allocator.exceptions.CallNodeIdMismatchException
+
 data class CallNode(
     val id: String,
     val region: String,
@@ -32,6 +35,25 @@ data class CallNode(
         capacity = newCapacity
         return this
     }
+
+    fun dropCall(call: Call) {
+        if (call.nodeId != this.id) {
+            throw CallNodeIdMismatchException(call, this.id)
+        }
+
+        if (call.status != CallStatus.RUNNING) {
+            throw CallHasInvalidStatusException(call, call.status, CallStatus.RUNNING)
+        }
+
+        runningCalls.remove(call)
+        stoppedCalls.add(call.copy(status = CallStatus.FINISHED))
+    }
+
+    fun dropCall(callId: String) {
+        val call = getCall(callId)?:return
+        dropCall(call)
+    }
+
 
     companion object {
         fun restore(id: String, region: String, capacity: Int, calls: List<Call>): CallNode {

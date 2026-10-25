@@ -96,4 +96,56 @@ class CallRoutesTest : DescribeSpec({
             app(Request(Method.GET, "/calls/${uniqueId()}")).status shouldBe Status.NOT_FOUND
         }
     }
+
+    describe("DELETE /calls/{id}") {
+        fun drop(callId: String) = app(Request(Method.DELETE, "/calls/$callId"))
+
+        it("marks the call as finished") {
+            val region = uniqueId()
+            val nodeId = uniqueId()
+            val callId = uniqueId()
+            register(nodeId, region, capacity = 1)
+            allocate(callId, region)
+
+            drop(callId).status shouldBe Status.NO_CONTENT
+
+            val response = app(Request(Method.GET, "/calls/$callId"))
+            getCallResponseLens(response) shouldBe GetCallResponse(callId, region, nodeId, CallStatus.FINISHED)
+        }
+
+        it("frees capacity on the node for new calls") {
+            val region = uniqueId()
+            val callId = uniqueId()
+            register(uniqueId(), region, capacity = 1)
+            allocate(callId, region)
+
+            drop(callId)
+
+            allocate(uniqueId(), region).status shouldBe Status.OK
+        }
+
+        it("returns 409 when the call is dropped again") {
+            val region = uniqueId()
+            val callId = uniqueId()
+            register(uniqueId(), region, capacity = 1)
+            allocate(callId, region)
+            drop(callId)
+
+            drop(callId).status shouldBe Status.CONFLICT
+        }
+
+        it("returns 409 when a dropped call is allocated again") {
+            val region = uniqueId()
+            val callId = uniqueId()
+            register(uniqueId(), region, capacity = 1)
+            allocate(callId, region)
+            drop(callId)
+
+            allocate(callId, region).status shouldBe Status.CONFLICT
+        }
+
+        it("returns 404 for an unknown call") {
+            drop(uniqueId()).status shouldBe Status.NOT_FOUND
+        }
+    }
 })
