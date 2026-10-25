@@ -2,6 +2,8 @@
 
 An HTTP service that registers call nodes per region and places calls on the least-loaded node with free capacity. Load is the call count each node reports, plus calls placed and minus calls ended since that report. Built with Kotlin and http4k. Node and call state is held in memory, so it is lost on restart.
 
+See the [design note](docs/design-note.md) for the assumptions and design decisions.
+
 ## Prerequisites
 
 | Tool | Needed for | Notes |
