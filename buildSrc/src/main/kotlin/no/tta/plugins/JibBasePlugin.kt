@@ -51,8 +51,10 @@ abstract class JibBasePlugin: Plugin<Project> {
         project.configure<JibExtension> {
             from {
                 platforms {
+                    // Match the build machine: the image is loaded straight into local kind nodes, and Jib only
+                    // builds multi-platform images when pushing to a registry.
                     platform {
-                        architecture = "arm64"
+                        architecture = hostArchitecture()
                         os = "linux"
                     }
                 }
@@ -63,6 +65,11 @@ abstract class JibBasePlugin: Plugin<Project> {
                 if (tags.isNullOrEmpty()) tags = setOf("v1.0.0")
             }
         }
+    }
+
+    private fun hostArchitecture(): String = when (System.getProperty("os.arch")) {
+        "aarch64", "arm64" -> "arm64"
+        else -> "amd64"
     }
 }
 
