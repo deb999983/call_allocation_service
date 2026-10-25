@@ -13,11 +13,13 @@ data class CallNode(
 
     val runningCallCount: Int get() = runningCalls.size
 
+    fun loadFactor(): Double = runningCalls.size.toDouble() / capacity
+
     fun canAllocateNewCalls(): Boolean {
         return runningCalls.size < capacity
     }
 
-    fun findCall(id: String): Call? {
+    fun getCall(id: String): Call? {
         return allCalls.find { it.id == id }
     }
 

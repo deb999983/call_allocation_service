@@ -10,5 +10,5 @@ data class Call(
     val id: String,
     val region: String,
     val nodeId: String? = null,
-    val status: CallStatus
+    val status: CallStatus = CallStatus.PENDING
 )

@@ -20,7 +20,7 @@ class NodeStoreTest : DescribeSpec({
             stored.shouldNotBeNull()
             stored.capacity shouldBe 3
             stored.runningCallCount shouldBe 1
-            stored.findCall("call-1")?.nodeId shouldBe nodeId
+            stored.getCall("call-1")?.nodeId shouldBe nodeId
         }
 
         it("returns null for an unknown node") {
