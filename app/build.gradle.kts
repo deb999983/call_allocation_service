@@ -23,6 +23,9 @@ dependencies {
     implementation(libs.hoplite.core)
     implementation(libs.hoplite.yaml)
 
+    implementation(libs.kotlin.logging)
+    runtimeOnly(libs.logback.classic)
+
     testImplementation(libs.kotlin.test)
     testImplementation(libs.junit.jupiter.engine)
     testRuntimeOnly(libs.junit.platform.launcher)
@@ -37,7 +40,13 @@ java {
 
 application {
     // Define the main class for the application.
-    mainClass = "org.example.AppKt"
+    mainClass = "no.cas.allocator.AppKt"
+}
+
+jib {
+    container {
+        ports = listOf("8080")
+    }
 }
 
 tasks.named<Test>("test") {
